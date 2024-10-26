@@ -3,7 +3,6 @@
 
 lv_obj_t * scr_1;
 lv_obj_t * scr_2;
-lv_obj_t * scr_3;
 
 void my_event_template(lv_event_t * e);
 void create_scr_1(void);
@@ -34,6 +33,10 @@ void my_event_template(lv_event_t * e)
 void create_scr_1(void)
 {
     scr_1 = lv_obj_create(NULL);
+    /*Change the active screen's background color*/
+    lv_obj_set_style_bg_color(scr_1, lv_color_hex(0x003a57), LV_PART_MAIN);
+    lv_obj_set_style_text_color(scr_1, lv_color_hex(0xffffff), LV_PART_MAIN);
+
     lv_obj_set_style_bg_opa(scr_1,LV_OPA_50,0);
     lv_obj_t *screen_1_label=lv_label_create(scr_1);
     lv_label_set_text(screen_1_label, "this is screen_1");
@@ -47,6 +50,10 @@ void create_scr_1(void)
 void create_scr_2(void)
 {
     scr_2=lv_obj_create(NULL);
+    /*Change the active screen's background color*/
+    lv_obj_set_style_bg_color(scr_2, lv_color_hex(0xffffff), LV_PART_MAIN);
+    lv_obj_set_style_text_color(scr_2, lv_color_hex(0x003a57), LV_PART_MAIN);
+
     lv_obj_set_style_bg_opa(scr_2,LV_OPA_50,0);
     lv_obj_t *screen_2_label=lv_label_create(scr_2);
     lv_label_set_text(screen_2_label, "this is screen_2");
