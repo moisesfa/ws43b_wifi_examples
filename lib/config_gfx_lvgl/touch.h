@@ -61,8 +61,16 @@ XPT2046_Touchscreen ts(TOUCH_XPT2046_CS, TOUCH_XPT2046_INT);
 #elif defined(TOUCH_MODULE_ADDR) // TouchLib
 
 #include <TouchLib.h>
+#include "config_gfx_lvgl.h"
 //TouchLib touch(Wire, TOUCH_SDA, TOUCH_SCL, TOUCH_MODULE_ADDR);
+
+#ifdef WAVESHARE_ESP32_S3_TFT_4_3B
 TouchLib touch(Wire, 8, 9, TOUCH_MODULE_ADDR);
+#endif
+
+#ifdef MATOUCH_ESP32_S3_TFT_4_3
+TouchLib touch(Wire, 17, 18, TOUCH_MODULE_ADDR);
+#endif
 
 #endif // TouchLib
 

@@ -8,7 +8,9 @@ Casi toda la información la saco de este gran blog [randomnerdtutorials](https:
 
 Se trata de mi version de un reloj digital que se muestra en este [tutorial](https://randomnerdtutorials.com/esp32-cyd-lvgl-digital-clock/) 
 
-Un reloj digital que muestra la hora y la fecha mediante LVGL (Light Versatile Graphics Library). Usaremos WorldTimeAPI para obtener la hora y la fecha actuales. El ESP32 se programará mediante PlatformIO.
+Un reloj digital que muestra la hora y la fecha mediante LVGL (Light Versatile Graphics Library). Es una excelente manera de aprender sobre interfaces gráficas y conectividad IoT. Usaremos WorldTimeAPI para obtener la hora y la fecha actuales. 
+
+Usaré PlatformIO para realizar los ejempos en el ESP32S3.
 
 ### Pasos 
 

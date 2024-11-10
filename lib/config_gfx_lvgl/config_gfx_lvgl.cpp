@@ -9,10 +9,12 @@
  *as the examples and demos are now part of the main LVGL library. */
 
 #include <Arduino_GFX_Library.h>
+#include "config_gfx_lvgl.h"
 #include "fun_ui_template.h"
+#include "fun_ui.h"
 
-#define GFX_DEV_DEVICE WAVESHARE_ESP32_S3_TFT_4_3B
-//define GFX_BL 2
+//#include <demos/lv_demos.h>
+#ifdef WAVESHARE_ESP32_S3_TFT_4_3B
 
 Arduino_ESP32RGBPanel *rgbpanel = new Arduino_ESP32RGBPanel(
   5 /* DE */,3 /* VSYNC */,46 /* HSYNC */,7 /* PCLK */,
@@ -25,7 +27,6 @@ Arduino_ESP32RGBPanel *rgbpanel = new Arduino_ESP32RGBPanel(
   0 /* vsync_polarity */, 8 /* vsync_front_porch */, 4 /* vsync_pulse_width */, 8 /* vsync_back_porch */,
   1 /* pclk_active_neg */, 16000000 /* prefer_speed */);
   
- 
 Arduino_RGB_Display *gfx = new Arduino_RGB_Display(
   800 /* width */,
   480 /* height */,
@@ -33,6 +34,8 @@ Arduino_RGB_Display *gfx = new Arduino_RGB_Display(
   0 /* rotation */,
   true /* auto_flush */
 );
+
+#endif
 
 /*******************************************************************************
  * End of Arduino_GFX setting
@@ -42,14 +45,12 @@ Arduino_RGB_Display *gfx = new Arduino_RGB_Display(
  * Please config the touch panel in touch.h
  ******************************************************************************/
 #include "touch.h"
-#include "config_gfx_lvgl.h"
 
 uint32_t screenWidth;
 uint32_t screenHeight;
 uint32_t bufSize;
 lv_display_t *disp;
 lv_color_t *disp_draw_buf;
-unsigned long lastTickMillis = 0;
 
 #if LV_USE_LOG != 0
 void my_print(lv_log_level_t level, const char *buf)
@@ -102,6 +103,10 @@ void my_touchpad_read(lv_indev_t *indev, lv_indev_data_t *data)
 
 void config_gfx_lvgl_init()
 {
+  Serial.begin(115200);
+  delay(2000);
+  // Serial.setDebugOutput(true);
+  // while(!Serial);
   Serial.println("Arduino_GFX LVGL_Arduino_v9 example ");
   String LVGL_Arduino = String('V') + lv_version_major() + "." + lv_version_minor() + "." + lv_version_patch();
   Serial.println(LVGL_Arduino);
@@ -128,10 +133,15 @@ void config_gfx_lvgl_init()
 
   screenWidth = gfx->width();
   screenHeight = gfx->height();
-  
+
   bufSize = screenWidth * 40;
-  disp_draw_buf = (lv_color_t *)heap_caps_malloc(bufSize * 2, MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
-  
+
+  disp_draw_buf = (lv_color_t *)heap_caps_malloc(bufSize*2, MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
+  if (!disp_draw_buf)
+  {
+    // remove MALLOC_CAP_INTERNAL flag try again
+    disp_draw_buf = (lv_color_t *)heap_caps_malloc(bufSize*2, MALLOC_CAP_8BIT);
+  }
   if (!disp_draw_buf)
   {
     Serial.println("LVGL disp_draw_buf allocate failed!");
@@ -140,19 +150,43 @@ void config_gfx_lvgl_init()
   {
     disp = lv_display_create(screenWidth, screenHeight);
     lv_display_set_flush_cb(disp, my_disp_flush);
-    lv_display_set_buffers(disp, disp_draw_buf, NULL, bufSize * 2, LV_DISPLAY_RENDER_MODE_PARTIAL);
+    lv_display_set_buffers(disp, disp_draw_buf, NULL, bufSize*2, LV_DISPLAY_RENDER_MODE_PARTIAL);
 
     /*Initialize the (dummy) input device driver*/
     lv_indev_t *indev = lv_indev_create();
     lv_indev_set_type(indev, LV_INDEV_TYPE_POINTER); /*Touchpad should have POINTER type*/
     lv_indev_set_read_cb(indev, my_touchpad_read);
 
-    /*******************************************************************************
-    * UI FUNCTIONS 
-    ******************************************************************************/
+    /* Option 1: Create a simple label
+     * ---------------------
+     */
+    // lv_obj_t *label = lv_label_create(lv_scr_act());
+    // lv_label_set_text(label, "Hello Arduino, I'm LVGL!(V" GFX_STR(LVGL_VERSION_MAJOR) "." GFX_STR(LVGL_VERSION_MINOR) "." GFX_STR(LVGL_VERSION_PATCH) ")");
+    // lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
 
-    lv_create_main_ui_template();
-       
+    /* Option 2: Try an example. See all the examples
+     *  - Online: https://docs.lvgl.io/master/examples.html
+     *  - Source codes: https://github.com/lvgl/lvgl/tree/master/examples
+     * ----------------------------------------------------------------
+     */
+    // lv_example_btn_1();
+
+    /* Option 3: Or try out a demo. Don't forget to enable the demos in lv_conf.h. E.g. LV_USE_DEMOS_WIDGETS
+     * -------------------------------------------------------------------------------------------
+     */
+    // lv_demo_widgets();
+    // lv_demo_benchmark();
+    // lv_demo_keypad_encoder();
+    // lv_demo_music();
+    // lv_demo_stress();
+
+    // *+****************
+    // * UI 
+    // *+****************
+    //wifi_test();  
+    //lv_create_main_ui_template();
+    ui_begin();
+  
   }
 
   Serial.println("Setup done");
@@ -160,6 +194,6 @@ void config_gfx_lvgl_init()
 
 void config_gfx_lvgl_loop()
 {
-  lv_task_handler();  /* let the GUI do its work */
+  lv_task_handler(); /* let the GUI do its work */
   delay(5);
 }
