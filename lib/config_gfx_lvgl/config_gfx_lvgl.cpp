@@ -104,7 +104,6 @@ void my_touchpad_read(lv_indev_t *indev, lv_indev_data_t *data)
 void config_gfx_lvgl_init()
 {
   Serial.begin(115200);
-  delay(2000);
   // Serial.setDebugOutput(true);
   // while(!Serial);
   Serial.println("Arduino_GFX LVGL_Arduino_v9 example ");
@@ -185,8 +184,7 @@ void config_gfx_lvgl_init()
     // *+****************
     //wifi_test();  
     //lv_create_main_ui_template();
-    ui_begin();
-  
+    ui_begin();  
   }
 
   Serial.println("Setup done");

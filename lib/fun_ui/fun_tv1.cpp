@@ -2,6 +2,8 @@
 #include <Arduino.h>
 // #include <lvgl.h>
 #include <WiFi.h>
+#include <Preferences.h>
+
 
 static lv_obj_t *kb;
 lv_obj_t *ssid_text_area;
@@ -10,6 +12,7 @@ lv_obj_t *dropdown_field;
 lv_obj_t *tv_act;
 lv_obj_t *text_label_conn;
 lv_obj_t *button_retry;
+lv_obj_t * spinner_scan;
 
 Preferences preferences;
 String wifi_ssid_list;
@@ -17,7 +20,6 @@ String wifi_ssid;
 String wifi_password;
 String text_connect;
 
-void lv_wifi_info_gui(void);
 
 // Tarea de escaneo WiFi que se ejecutará una vez
 void scanWiFiTask(void *parameter)
@@ -30,6 +32,8 @@ void scanWiFiTask(void *parameter)
 
   if (n == 0)
   {
+    wifi_ssid_list = wifi_ssid_list + "No networks found\n";
+    lv_dropdown_set_options_static(dropdown_field, wifi_ssid_list.c_str());
     Serial.println("No networks found");
   }
   else
@@ -44,10 +48,12 @@ void scanWiFiTask(void *parameter)
     lv_dropdown_set_options_static(dropdown_field, wifi_ssid_list.c_str());
     Serial.println(wifi_ssid_list);
   }
+  lv_obj_del(spinner_scan);
   // Delete the scan result to free memory for code below.
   WiFi.scanDelete();
 
   Serial.println("finish scanWiFiTask");
+  vTaskDelay(pdMS_TO_TICKS(100));
   // Elimina la tarea actual (self-delete)
   vTaskDelete(NULL);
 }
@@ -131,7 +137,7 @@ static void text_area_event_cb(lv_event_t *e)
     Serial.println(wifi_password);
 
     preferences.end();
-    lv_wifi_info_gui();
+    lv_wifi_info_gui(tv_act);
   }
 }
 
@@ -147,7 +153,7 @@ static void button_delete_credentials_cb(lv_event_t *e)
   }
 }
 
-void lv_wifi_info_gui(void)
+void lv_wifi_info_gui(lv_obj_t *tv)
 {
 
   // Try to connect to Wi-Fi
@@ -161,10 +167,10 @@ void lv_wifi_info_gui(void)
   );
 
   // Clear screen
-  lv_obj_clean(tv_act);
+  lv_obj_clean(tv);
 
   // // Create a text label aligned center on top ("Wi-Fi Manager")
-  lv_obj_t *text_label_0 = lv_label_create(tv_act);
+  lv_obj_t *text_label_0 = lv_label_create(tv);
   lv_obj_set_style_text_color(text_label_0, lv_color_hex(0x5e5e5c), LV_PART_MAIN);
   lv_label_set_text(text_label_0, LV_SYMBOL_WIFI " Wi-Fi Manager");
   lv_obj_set_style_text_align(text_label_0, LV_TEXT_ALIGN_CENTER, 0);
@@ -175,7 +181,7 @@ void lv_wifi_info_gui(void)
   lv_style_set_text_font(&style_text_label, &lv_font_montserrat_28);
   lv_obj_add_style(text_label_0, &style_text_label, 0);
 
-  text_label_conn = lv_label_create(tv_act);
+  text_label_conn = lv_label_create(tv);
   lv_label_set_long_mode(text_label_conn, LV_LABEL_LONG_WRAP);
   lv_obj_set_style_text_color(text_label_conn, lv_color_hex(0x5e5e5c), LV_PART_MAIN);
   text_connect = "Connecting . . . " LV_SYMBOL_CALL;
@@ -185,7 +191,7 @@ void lv_wifi_info_gui(void)
   lv_obj_align(text_label_conn, LV_ALIGN_CENTER, 0, -40);
   lv_obj_add_style(text_label_conn, &style_text_label, 0);
 
-  button_retry = lv_button_create(tv_act);                                                 // Add a button the current screen
+  button_retry = lv_button_create(tv);                                                 // Add a button the current screen
   lv_obj_set_size(button_retry, 120, 50);                                                  // Set its size
   lv_obj_add_event_cb(button_retry, button_delete_credentials_cb, LV_EVENT_CLICKED, NULL); // Assign a callback to the button
   lv_obj_align(button_retry, LV_ALIGN_BOTTOM_MID, 0, -20);
@@ -253,9 +259,24 @@ void create_ui_tv1(lv_obj_t *tv)
   lv_obj_align(password_text_area, LV_ALIGN_TOP_MID, 0, 180);
   lv_obj_add_style(password_text_area, &style_text_ssid_pass, 0); // Add the styles to the list/}
 
+   /*Create a spinner*/
+  spinner_scan = lv_spinner_create(tv);
+  lv_obj_set_size(spinner_scan, 100, 100);
+  lv_obj_align(spinner_scan, LV_ALIGN_CENTER, 0, 80);
+  lv_spinner_set_anim_params(spinner_scan, 1000, 200);
+
   // Create a keyboard
   kb = lv_keyboard_create(tv);
   lv_obj_set_size(kb, LV_HOR_RES, LV_VER_RES / 2);
   lv_keyboard_set_textarea(kb, password_text_area); // Focus it on one of the text areas to start
   lv_obj_add_flag(kb, LV_OBJ_FLAG_HIDDEN);
+}
+
+void get_preferences(void){
+    // Open the credentials namespace and try to retrieve an SSID/Password
+    preferences.begin("credentials", false);
+    wifi_ssid = preferences.getString("wifi_ssid", ""); 
+    wifi_password = preferences.getString("wifi_password", "");
+    // Close the Preferences
+    preferences.end();    
 }

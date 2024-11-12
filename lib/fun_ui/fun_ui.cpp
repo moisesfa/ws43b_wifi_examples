@@ -28,8 +28,16 @@ void ui_begin()
     // lv_label_set_recolor(lbl1,true);
     // lv_obj_center(lbl1);
     // lv_label_set_text(lbl1, "#0000ff Scroll down 1#");
-
-    create_ui_tv1(tv1);
+    
+    get_preferences();
+    
+    if (wifi_ssid == "" || wifi_password == ""){
+      Serial.println("No values saved for ssid or password");
+      create_ui_tv1(tv1);
+    }
+    else {  
+      lv_wifi_info_gui(tv1);
+    }    
 
     //**************************  
     //**  page 2 */
