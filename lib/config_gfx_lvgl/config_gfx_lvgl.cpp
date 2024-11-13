@@ -12,6 +12,7 @@
 #include "config_gfx_lvgl.h"
 #include "fun_ui_template.h"
 #include "fun_ui.h"
+#include "fun_tv1.h"
 
 //#include <demos/lv_demos.h>
 #ifdef WAVESHARE_ESP32_S3_TFT_4_3B
@@ -51,6 +52,43 @@ uint32_t screenHeight;
 uint32_t bufSize;
 lv_display_t *disp;
 lv_color_t *disp_draw_buf;
+
+//* Creamos una cola
+QueueHandle_t lvgl_queue;
+
+
+//* Implementamos la tarea lvgl que se encarga de procesar lv_task_handler y leer los mensajes de la cola
+void task_lvgl(void *pvParameter){
+  // Referencia a la estructura
+  lvgl_update_t update_widget;
+  
+  //* Inicialización de los widges, en este caso una etiqueta
+  ui_begin();  
+  
+  while (1)
+  {
+    //* Procesa lvgl cada 5 ms
+    lv_task_handler();
+    vTaskDelay(pdMS_TO_TICKS(5));
+
+    //* Revisa la cola para ver si hay actualizaciones que realizar 
+    if (xQueueReceive(lvgl_queue, &update_widget, 0) == pdPASS){
+        //* Actualiza el widget correspondiente
+        if (update_widget.widget_id == 1){  //* Id del widget especifico
+          lv_dropdown_set_options_static(dropdown_field, update_widget.new_String.c_str());
+          lv_obj_del(spinner_scan);
+        }
+        if (update_widget.widget_id == 2){  //* Id del widget especifico
+          lv_label_set_text(text_label_conn, update_widget.new_String.c_str());
+          lv_obj_clear_state(button_retry, LV_STATE_DISABLED);
+        }
+
+    }
+
+  }
+      
+}
+
 
 #if LV_USE_LOG != 0
 void my_print(lv_log_level_t level, const char *buf)
@@ -184,14 +222,20 @@ void config_gfx_lvgl_init()
     // *+****************
     //wifi_test();  
     //lv_create_main_ui_template();
-    ui_begin();  
+
+    //* Crea la cola con espacio para 10 mensajes de tipo lvgl_update_t
+    lvgl_queue = xQueueCreate(10,sizeof(lvgl_update_t));    
+
+    //* Creamos las tareas de lvgl y la de actualización 
+    xTaskCreate(task_lvgl, "Task lvgl", 1024*5, NULL, 5, NULL); 
+    
   }
 
   Serial.println("Setup done");
 }
 
-void config_gfx_lvgl_loop()
-{
-  lv_task_handler(); /* let the GUI do its work */
-  delay(5);
-}
+// void config_gfx_lvgl_loop()
+// {
+//   lv_task_handler(); /* let the GUI do its work */
+//   delay(5);
+// }

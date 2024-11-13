@@ -1,6 +1,6 @@
 #include "fun_tv1.h"
 #include <Arduino.h>
-// #include <lvgl.h>
+#include "config_gfx_lvgl.h"
 #include <WiFi.h>
 #include <Preferences.h>
 
@@ -20,7 +20,6 @@ String wifi_ssid;
 String wifi_password;
 String text_connect;
 
-
 // Tarea de escaneo WiFi que se ejecutará una vez
 void scanWiFiTask(void *parameter)
 {
@@ -33,7 +32,6 @@ void scanWiFiTask(void *parameter)
   if (n == 0)
   {
     wifi_ssid_list = wifi_ssid_list + "No networks found\n";
-    lv_dropdown_set_options_static(dropdown_field, wifi_ssid_list.c_str());
     Serial.println("No networks found");
   }
   else
@@ -45,15 +43,23 @@ void scanWiFiTask(void *parameter)
     {
       wifi_ssid_list = wifi_ssid_list + WiFi.SSID(i) + '\n';
     }
-    lv_dropdown_set_options_static(dropdown_field, wifi_ssid_list.c_str());
     Serial.println(wifi_ssid_list);
   }
-  lv_obj_del(spinner_scan);
+  
+  //* Prepara la estructura de mensaje 
+  lvgl_update_t update_widget = {
+    .widget_id = 1,
+    .new_String = wifi_ssid_list
+   };
+   //* Envia el mensaje a la cola 
+   xQueueSend(lvgl_queue, &update_widget, portMAX_DELAY);
+
   // Delete the scan result to free memory for code below.
   WiFi.scanDelete();
 
   Serial.println("finish scanWiFiTask");
   vTaskDelay(pdMS_TO_TICKS(100));
+
   // Elimina la tarea actual (self-delete)
   vTaskDelete(NULL);
 }
@@ -78,8 +84,6 @@ void connectWiFiTask(void *parameter)
   {
     Serial.println("Failed to connect");
     text_connect = "Failed to connect " LV_SYMBOL_CLOSE;
-    lv_label_set_text(text_label_conn, text_connect.c_str());
-    lv_obj_clear_state(button_retry, LV_STATE_DISABLED);
   }
   else
   {
@@ -89,15 +93,21 @@ void connectWiFiTask(void *parameter)
     Serial.println(WiFi.RSSI());
     String local_ip = "IP ADDRESS: " + WiFi.localIP().toString();
    
-    text_connect = "Connected to Wi-Fi";
-    text_connect += "Connected " LV_SYMBOL_OK "\n";
+    text_connect = "Connected to Wi-Fi \n";
+    text_connect += wifi_ssid.c_str();
+    text_connect += "  " LV_SYMBOL_OK "\n";
     text_connect += local_ip + "\n";
     text_connect += "RSSI: " + String(WiFi.RSSI()) + "\n";
   
-    lv_label_set_text(text_label_conn, text_connect.c_str());
-    lv_obj_clear_state(button_retry, LV_STATE_DISABLED);
-
   }
+
+  //* Prepara la estructura de mensaje 
+  lvgl_update_t update_widget = {
+    .widget_id = 2,
+    .new_String = text_connect
+   };
+  //* Envia el mensaje a la cola 
+  xQueueSend(lvgl_queue, &update_widget, portMAX_DELAY);
 
   Serial.println("finish connectWiFiTask");
   vTaskDelay(pdMS_TO_TICKS(100));

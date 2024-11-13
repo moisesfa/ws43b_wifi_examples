@@ -1,10 +1,8 @@
 #include "fun_ui.h"
-#include <lvgl.h>
 #include <Arduino.h>
 #include "fun_tv1.h"
 
 static lv_obj_t *dis;
-
 
 void ui_begin()
 {

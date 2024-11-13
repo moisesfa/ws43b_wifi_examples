@@ -3,6 +3,12 @@
 #include <Arduino.h>
 #include <lvgl.h>
 //extern Preferences preferences;
+
+extern lv_obj_t * dropdown_field;
+extern lv_obj_t * spinner_scan;
+extern lv_obj_t *text_label_conn;
+extern lv_obj_t *button_retry;
+
 extern String wifi_ssid;
 extern String wifi_password;
 

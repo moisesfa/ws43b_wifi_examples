@@ -16,5 +16,6 @@ void setup()
 
 void loop()
 {
-  config_gfx_lvgl_loop();
+  //config_gfx_lvgl_loop();
+  vTaskDelete(NULL);
 }
