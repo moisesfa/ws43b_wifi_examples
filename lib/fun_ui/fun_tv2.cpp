@@ -100,6 +100,13 @@ void create_ui_tv2(lv_obj_t *tv)
 
   LV_FONT_DECLARE(lv_font_alibaba_sans_bold_80);
   LV_FONT_DECLARE(lv_font_alibaba_sans_bold_140);
+  
+  // Añadir imagen
+  LV_IMAGE_DECLARE(fondo_1);
+  lv_obj_t * img1 = lv_image_create(tv);
+  lv_image_set_src(img1, &fondo_1);
+  lv_obj_align(img1, LV_ALIGN_CENTER, 0, 0);
+  
   // Create a text label for the time aligned center
   text_label_time = lv_label_create(tv);
   lv_obj_set_style_text_color((lv_obj_t *)text_label_time, lv_palette_main(LV_PALETTE_GREY), 0);  
