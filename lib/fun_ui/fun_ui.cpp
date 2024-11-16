@@ -1,6 +1,7 @@
 #include "fun_ui.h"
 #include <Arduino.h>
 #include "fun_tv1.h"
+#include "fun_tv2.h"
 
 static lv_obj_t *dis;
 
@@ -41,12 +42,14 @@ void ui_begin()
     //**  page 2 */
     //**************************  
     
-    lv_obj_t * lbl2 = lv_label_create(tv2);
-    //lv_label_set_recolor(lbl2,true);
-    lv_obj_set_style_text_color(lbl2, lv_color_hex(0xFF5e5c), LV_PART_MAIN);    
-    lv_label_set_text(lbl2, "0xFF5e5c tileview 2");
-    lv_obj_center(lbl2);
+    // lv_obj_t * lbl2 = lv_label_create(tv2);
+    // //lv_label_set_recolor(lbl2,true);
+    // lv_obj_set_style_text_color(lbl2, lv_color_hex(0xFF5e5c), LV_PART_MAIN);    
+    // lv_label_set_text(lbl2, "0xFF5e5c tileview 2");
+    // lv_obj_center(lbl2);
     
+    create_ui_tv2(tv2);
+
     //**************************  
     //**  page 3 */
     //**************************  

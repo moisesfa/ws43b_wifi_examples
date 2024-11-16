@@ -3,7 +3,7 @@
 #include "config_gfx_lvgl.h"
 #include <WiFi.h>
 #include <Preferences.h>
-
+#include "fun_tv2.h"
 
 static lv_obj_t *kb;
 lv_obj_t *ssid_text_area;
@@ -19,6 +19,7 @@ String wifi_ssid_list;
 String wifi_ssid;
 String wifi_password;
 String text_connect;
+bool connect_wifi_status = false;  // false no connect, true connect 
 
 // Tarea de escaneo WiFi que se ejecutará una vez
 void scanWiFiTask(void *parameter)
@@ -84,6 +85,7 @@ void connectWiFiTask(void *parameter)
   {
     Serial.println("Failed to connect");
     text_connect = "Failed to connect " LV_SYMBOL_CLOSE;
+    connect_wifi_status = false;
   }
   else
   {
@@ -98,7 +100,7 @@ void connectWiFiTask(void *parameter)
     text_connect += "  " LV_SYMBOL_OK "\n";
     text_connect += local_ip + "\n";
     text_connect += "RSSI: " + String(WiFi.RSSI()) + "\n";
-  
+    connect_wifi_status = true;
   }
 
   //* Prepara la estructura de mensaje 
@@ -108,7 +110,11 @@ void connectWiFiTask(void *parameter)
    };
   //* Envia el mensaje a la cola 
   xQueueSend(lvgl_queue, &update_widget, portMAX_DELAY);
+  
+  //* Sincronizo fecha y hora  
+  xTaskNotifyGive(xGetDateTimeTaskHandle);
 
+  //sync_time_date = false;
   Serial.println("finish connectWiFiTask");
   vTaskDelay(pdMS_TO_TICKS(100));
   // Elimina la tarea actual (self-delete)

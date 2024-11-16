@@ -8,8 +8,10 @@ void setup()
   // Serial.setDebugOutput(true);
   // while(!Serial);
   delay(2000);
+#ifdef WAVESHARE_ESP32_S3_TFT_4_3B
   expander_init();
   delay(500);
+#endif
   config_gfx_lvgl_init();
 
 }

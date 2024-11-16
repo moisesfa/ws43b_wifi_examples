@@ -10,6 +10,8 @@ typedef struct {
 extern QueueHandle_t lvgl_queue;
 
 #define WAVESHARE_ESP32_S3_TFT_4_3B
+//#define MATOUCH_ESP32_S3_TFT_4_3
+
 
 void config_gfx_lvgl_init();
 //void config_gfx_lvgl_loop();
