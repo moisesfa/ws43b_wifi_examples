@@ -19,6 +19,7 @@ Usaré PlatformIO para realizar los ejempos en el ESP32S3.
 - [x] Pantalla WiFi para conectarse al WiFi en un inicio y mostrar el estado de la conexión después.
 - [x] La información de la conexión, SSID y Password, debe de almacenarse permaentemente y si es posible conectarse automáticamente al router WiFi  
 - [x] Pantalla reloj en donde se mostrará Hora y Fecha 
+- [ ] Se produce de vez en cuando un parpadeo bastante incomodo sobre todo en la pantalla del reloj que hay que solucionar
 
 
 <div style="text-align: center;">

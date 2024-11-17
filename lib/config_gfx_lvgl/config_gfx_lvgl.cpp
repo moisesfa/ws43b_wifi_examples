@@ -26,7 +26,7 @@ Arduino_ESP32RGBPanel *rgbpanel = new Arduino_ESP32RGBPanel(
   // Esta configuración es la que mejor funciona de momento
   0 /* hsync_polarity */, 8 /* hsync_front_porch */, 4 /* hsync_pulse_width */, 8 /* hsync_back_porch */,
   0 /* vsync_polarity */, 8 /* vsync_front_porch */, 4 /* vsync_pulse_width */, 8 /* vsync_back_porch */,
-  1 /* pclk_active_neg */, 16000000 /* prefer_speed */);
+  1 /* pclk_active_neg */, 14000000 /* prefer_speed */);
   
 Arduino_RGB_Display *gfx = new Arduino_RGB_Display(
   800 /* width */,

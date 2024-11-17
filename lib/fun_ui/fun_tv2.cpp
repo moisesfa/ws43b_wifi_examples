@@ -16,7 +16,7 @@ static int32_t second = 0;
 bool sync_time_date = false;
 // Specify the timezone you want to get the time for: https://worldtimeapi.org/api/timezone
 // Timezone example for Portugal: "Europe/Lisbon"
-const char *timezone = "Europe/Lisbon";
+const char *timezone = "Europe/Madrid";
 TaskHandle_t xGetDateTimeTaskHandle = NULL;
 
 static lv_obj_t *text_label_time;
